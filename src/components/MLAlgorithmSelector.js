@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, Info, CheckCircle, BookOpen } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Info, CheckCircle, BookOpen, ExternalLink } from 'lucide-react';
+import AlgorithmDetailPage from './AlgorithmDetailPage';
+import { elasticNetData } from '../data/elasticNetData';
 
 const MLAlgorithmSelector = () => {
+  const [showDetailPage, setShowDetailPage] = useState(null);
+  
+  // Map algorithm keys to their data
+  const algorithmDataMap = {
+    'elasticnet': elasticNetData,
+    // Add more algorithms here as you create them
+  };
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showExplanation, setShowExplanation] = useState(false);
@@ -563,6 +572,16 @@ const MLAlgorithmSelector = () => {
   const currentQuestion = questions.find(q => q.id === (step === 0 ? 'dataLabels' : answers[questions[step - 1]?.id]?.next || 'dataLabels'));
   const result = algorithms[answers[currentQuestion?.id]?.next];
 
+  // Show detail page if requested
+  if (showDetailPage && algorithmDataMap[showDetailPage]) {
+    return (
+      <AlgorithmDetailPage
+        algorithmData={algorithmDataMap[showDetailPage]}
+        onBack={() => setShowDetailPage(null)}
+      />
+    );
+  }
+
   const handleAnswer = (option) => {
     setAnswers({ ...answers, [currentQuestion.id]: option });
     if (option.next && !algorithms[option.next]) {
@@ -610,11 +629,24 @@ const MLAlgorithmSelector = () => {
             <div className="mb-6 p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-600">
               <h2 className="text-2xl font-semibold text-indigo-900 mb-2">{result.name}</h2>
               <div className="flex flex-wrap gap-2 mt-3">
-                {result.algorithms.map((algo, idx) => (
-                  <span key={idx} className="px-3 py-1 bg-white rounded-full text-sm font-medium text-indigo-700 border border-indigo-200">
-                    {algo}
-                  </span>
-                ))}
+                {result.algorithms.map((algo, idx) => {
+                  const algoKey = algo.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  const hasDetailPage = ['elasticnet'].includes(algoKey);
+                  
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => hasDetailPage && setShowDetailPage(algoKey)}
+                      className={`px-3 py-1 bg-white rounded-full text-sm font-medium text-indigo-700 border border-indigo-200 ${
+                        hasDetailPage ? 'hover:bg-indigo-100 cursor-pointer flex items-center gap-1' : ''
+                      }`}
+                      disabled={!hasDetailPage}
+                    >
+                      {algo}
+                      {hasDetailPage && <ExternalLink className="w-3 h-3" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
