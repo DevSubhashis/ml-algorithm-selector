@@ -12,7 +12,7 @@ ML Algorithm Selector is a comprehensive, interactive decision-tree based tool t
 
 ## 📖 Preview
 
-https://tangerine-froyo-570fdf.netlify.app/
+https://dynamic-strudel-7fd6b8.netlify.app/
 
 ### ✨ Key Features
 
