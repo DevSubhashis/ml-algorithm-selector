@@ -238,7 +238,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - GitHub: [@DevSubhashis](https://github.com/DevSubhashis)
 - Email: jobshelper4u@gmail.com
-- LinkedIn: [Your Profile](https://www.linkedin.com/in/subhashis-routh-1a3a71b5)
+- LinkedIn: [DevSubhashis](https://www.linkedin.com/in/subhashis-routh-1a3a71b5)
 
 ---
 
