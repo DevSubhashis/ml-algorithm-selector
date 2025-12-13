@@ -10,6 +10,10 @@
 
 ML Algorithm Selector is a comprehensive, interactive decision-tree based tool that guides you through selecting the most appropriate machine learning algorithm for your specific use case. Whether you're a student learning ML, a data scientist exploring options, or an engineer building production systems, this tool provides expert guidance with detailed explanations.
 
+## 📖 Preview
+
+https://tangerine-froyo-570fdf.netlify.app/
+
 ### ✨ Key Features
 
 - 🎯 **Smart Decision Tree** - Answer targeted questions about your data and requirements
