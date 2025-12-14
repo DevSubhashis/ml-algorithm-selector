@@ -199,7 +199,6 @@ Recommended resources to learn more about the algorithms:
 - [TensorFlow Tutorials](https://www.tensorflow.org/tutorials)
 - [PyTorch Tutorials](https://pytorch.org/tutorials/)
 - [Papers with Code](https://paperswithcode.com/)
-- [Machine Learning Mastery](https://machinelearningmastery.com/)
 - [Fast.ai](https://www.fast.ai/)
 
 ## 🐛 Bug Reports
