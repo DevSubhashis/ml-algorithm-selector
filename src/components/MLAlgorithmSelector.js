@@ -5,6 +5,7 @@ import { elasticNetData } from '../data/elasticNetData';
 import { bayesianLinearData } from '../data/bayesianLinearData';
 import { robustRegressionData } from '../data/robustRegressionData';
 import { lassoRegressionData } from '../data/lassoRegressionData';
+import { ridgeRegressionData } from '../data/ridgeRegressionData';
 
 const MLAlgorithmSelector = () => {
   const [showDetailPage, setShowDetailPage] = useState(null);
@@ -14,10 +15,12 @@ const MLAlgorithmSelector = () => {
     'elasticnet': elasticNetData,
     'bayesianlinearregression': bayesianLinearData,
     'robustregression': robustRegressionData,
-    'huberregression': robustRegressionData,  // Alias
-    'ransac': robustRegressionData,  // Alias
+    'huberregression': robustRegressionData, 
+    'ransac': robustRegressionData, 
     'lassoregressionl1': lassoRegressionData,
-    'lasso': lassoRegressionData,  // Alias
+    'lasso': lassoRegressionData,  
+    'ridgeregressionl2': ridgeRegressionData,
+    'ridge' : ridgeRegressionData
     // Add more algorithms here as you create them
   };
   const [step, setStep] = useState(0);
@@ -651,7 +654,7 @@ const MLAlgorithmSelector = () => {
               <div className="flex flex-wrap gap-2 mt-3">
                 {result.algorithms.map((algo, idx) => {
                   const algoKey = algo.toLowerCase().replace(/[^a-z0-9]/g, '');
-                  const hasDetailPage = ['elasticnet', 'bayesianlinearregression', 'robustregression', 'huberregression', 'ransac', 'theilsenestimator', 'lassoregressionl1', 'lasso'].includes(algoKey);
+                  const hasDetailPage = ['elasticnet', 'bayesianlinearregression', 'robustregression', 'huberregression', 'ransac', 'theilsenestimator', 'lassoregressionl1', 'lasso', 'ridgeregressionl2', 'ridge'].includes(algoKey);
                   
                   return (
                     <button
