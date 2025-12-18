@@ -6,6 +6,7 @@ import { bayesianLinearData } from '../data/bayesianLinearData';
 import { robustRegressionData } from '../data/robustRegressionData';
 import { lassoRegressionData } from '../data/lassoRegressionData';
 import { ridgeRegressionData } from '../data/ridgeRegressionData';
+import { olsRegressionData } from '../data/olsRegressionData';
 
 const MLAlgorithmSelector = () => {
   const [showDetailPage, setShowDetailPage] = useState(null);
@@ -15,17 +16,20 @@ const MLAlgorithmSelector = () => {
     'elasticnet': elasticNetData,
     'bayesianlinearregression': bayesianLinearData,
     'robustregression': robustRegressionData,
-    'huberregression': robustRegressionData, 
-    'ransac': robustRegressionData, 
+    'huberregression': robustRegressionData,
+    'ransac': robustRegressionData,
+    'theilsenestimator': robustRegressionData,
     'lassoregressionl1': lassoRegressionData,
-    'lasso': lassoRegressionData,  
+    'lasso': lassoRegressionData,
     'ridgeregressionl2': ridgeRegressionData,
-    'ridge' : ridgeRegressionData
-    // Add more algorithms here as you create them
+    'ridge': ridgeRegressionData,
+    'ordinaryleastsquaresols': olsRegressionData,
+    'ols': olsRegressionData,
+    'linearregression': olsRegressionData,
   };
+
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [showExplanation, setShowExplanation] = useState(false);
 
   const questions = [
     {
@@ -174,11 +178,11 @@ const MLAlgorithmSelector = () => {
     linearRegression: {
       name: 'Linear Regression Family',
       algorithms: ['Ordinary Least Squares (OLS)', 'Ridge Regression (L2)', 'Lasso Regression (L1)', 'Elastic Net', 'Bayesian Linear Regression', 'Robust Regression'],
-      why: 'You selected small dataset with linear relationships. Linear regression is ideal because:\n\n• Simple and interpretable - easy to explain coefficients\n• Fast to train and predict\n• Works well with limited data\n• No hyperparameter tuning needed for OLS\n• Ridge/Lasso help with multicollinearity and feature selection\n• Elastic Net combines benefits of Ridge and Lasso\n• Bayesian version provides uncertainty estimates',
+      why: 'You selected small dataset with linear relationships. Linear regression is ideal because:\n\n• Simple and interpretable - easy to explain coefficients\n• Fast to train and predict\n• Works well with limited data\n• OLS is the foundation - BLUE estimator\n• Ridge/Lasso help with multicollinearity and feature selection\n• Elastic Net combines benefits of Ridge and Lasso\n• Bayesian version provides uncertainty estimates\n• Robust methods handle outliers',
       when: 'Use when relationships are linear, you need interpretability, or have limited data',
-      pros: 'Fast, interpretable, no hyperparameters, works with small data',
-      cons: 'Cannot model non-linear relationships, sensitive to outliers, assumes linear relationships',
-      details: 'OLS minimizes sum of squared errors. Ridge adds L2 penalty (shrinks coefficients). Lasso adds L1 penalty (can zero out features). Elastic Net combines both. Bayesian version uses probabilistic framework.'
+      pros: 'Fast, interpretable, well-understood theory, works with small data',
+      cons: 'Cannot model non-linear relationships, sensitive to outliers (except robust), assumes linear relationships',
+      details: 'OLS minimizes sum of squared errors. Ridge adds L2 penalty. Lasso adds L1 penalty (feature selection). Elastic Net combines both. Bayesian uses probabilistic framework. Robust methods downweight outliers.'
     },
 
     nonlinearSmall: {
@@ -240,356 +244,6 @@ const MLAlgorithmSelector = () => {
       cons: 'Cannot learn non-linear patterns, assumes linear separability',
       details: 'Uses logistic function to model probabilities. L2 adds weight decay. L1 can zero out features. Multinomial extends to multiple classes.'
     },
-
-    textClassification: {
-      name: 'Text Classification',
-      algorithms: ['Naive Bayes (Multinomial)', 'Logistic Regression with TF-IDF', 'Linear SVM', 'FastText', 'BERT/RoBERTa/DistilBERT', 'XLNet', 'GPT fine-tuned'],
-      why: 'You have text data for classification:\n\n• Naive Bayes: Fast baseline, works well for spam detection\n• TF-IDF + Linear models: Classic approach, very fast\n• FastText: Efficient embeddings, handles large vocabularies\n• BERT family: State-of-the-art, understands context\n• Fine-tuned LLMs: Best performance, can do few-shot learning',
-      when: 'Use for sentiment analysis, spam detection, topic classification',
-      pros: 'BERT models understand context, FastText is very fast, Naive Bayes works with small data',
-      cons: 'BERT models are large and slow, simpler models miss context',
-      details: 'Naive Bayes uses word frequencies. TF-IDF weights words by importance. BERT uses bidirectional transformers with pre-training on massive text.'
-    },
-
-    imageClassification: {
-      name: 'Image Classification',
-      algorithms: ['Convolutional Neural Networks (CNNs)', 'ResNet/ResNeXt', 'EfficientNet', 'Vision Transformers (ViT)', 'CLIP', 'Transfer Learning (ImageNet pre-trained models)', 'MobileNet (for mobile/edge)', 'YOLO (if also need detection)'],
-      why: 'You have image data:\n\n• CNNs are designed for spatial data, learn hierarchical features\n• ResNet solves vanishing gradient with skip connections\n• EfficientNet scales networks optimally\n• Vision Transformers: Recent breakthrough, attention-based\n• Transfer learning: Use pre-trained models, works with small data\n• MobileNet: Optimized for resource-constrained devices',
-      when: 'Use for any image classification task',
-      pros: 'State-of-the-art accuracy, transfer learning works with limited data, handles raw pixels',
-      cons: 'Requires GPUs, lots of data for training from scratch, computationally expensive',
-      details: 'CNNs use convolutional layers to detect patterns. ResNet uses skip connections. Transfer learning fine-tunes pre-trained models. ViT splits images into patches.'
-    },
-
-    smallTabular: {
-      name: 'Small Tabular Data Classification',
-      algorithms: ['Logistic Regression', 'Support Vector Machines (SVM)', 'Decision Trees', 'Random Forest', 'Naive Bayes', 'K-Nearest Neighbors (KNN)'],
-      why: 'You have tabular data with <10K samples:\n\n• Logistic Regression: Fast, interpretable baseline\n• SVM with RBF kernel: Handles non-linear boundaries well\n• Decision Trees: Interpretable, handles mixed features\n• Random Forest: More robust than single tree\n• Naive Bayes: Fast, works well with small data\n• KNN: Simple, non-parametric',
-      when: 'Use with structured/tabular data and limited samples',
-      pros: 'Fast training, some are interpretable, work with small datasets',
-      cons: 'May not capture complex patterns, need feature engineering',
-      details: 'SVM finds maximum margin hyperplane. RF averages multiple trees. KNN predicts based on nearest neighbors. Naive Bayes assumes feature independence.'
-    },
-
-    largeTabular: {
-      name: 'Large Tabular Data Classification',
-      algorithms: ['XGBoost', 'LightGBM', 'CatBoost', 'Neural Networks', 'TabNet', 'Deep & Cross Networks', 'NODE (Neural Oblivious Decision Ensembles)'],
-      why: 'You have large tabular dataset (>10K samples):\n\n• XGBoost: Industry standard, wins many Kaggle competitions\n• LightGBM: Faster than XGBoost, handles large data well\n• CatBoost: Handles categorical features natively, reduces overfitting\n• TabNet: Deep learning designed for tabular data\n• Neural networks can learn complex interactions',
-      when: 'Use with large structured datasets for maximum performance',
-      pros: 'State-of-the-art accuracy, handles complex interactions, built-in regularization',
-      cons: 'Requires tuning, less interpretable, can overfit, slower than simpler models',
-      details: 'XGBoost uses regularized boosting. LightGBM uses histogram-based splitting. CatBoost uses ordered boosting. TabNet uses sequential attention.'
-    },
-
-    imbalancedClass: {
-      name: 'Imbalanced Classification',
-      algorithms: ['SMOTE (Synthetic Minority Over-sampling)', 'Random Under/Over-sampling', 'Class-weighted models', 'Anomaly Detection approaches', 'Focal Loss with Neural Networks', 'EasyEnsemble', 'BalancedRandomForest'],
-      why: 'You have imbalanced classes (e.g., 99% negative, 1% positive):\n\n• SMOTE: Generates synthetic minority samples\n• Class weights: Penalizes misclassifying minority class more\n• Anomaly detection: Treats minority as anomalies\n• Focal Loss: Focuses on hard examples\n• Ensemble methods: Combine multiple balanced models\n• Specialized evaluation metrics: Use F1, AUC-PR instead of accuracy',
-      when: 'Use when one class is much rarer than others (fraud, disease detection)',
-      pros: 'Improves minority class recall, various approaches available',
-      cons: 'SMOTE can generate noise, class weights need tuning, may sacrifice majority class accuracy',
-      details: 'SMOTE interpolates between minority samples. Class weights multiply loss by class weight. Focal Loss adds (1-p)^γ factor to focus on hard examples.'
-    },
-
-    interpretableMulti: {
-      name: 'Interpretable Multi-class Classification',
-      algorithms: ['Decision Trees', 'Random Forest', 'Naive Bayes', 'Logistic Regression (one-vs-rest)', 'Rule-based classifiers (RIPPER)', 'Linear Discriminant Analysis'],
-      why: 'You need interpretable multi-class classification:\n\n• Decision Trees: Produces clear if-then rules\n• Random Forest: Feature importance, can extract rules\n• Naive Bayes: Simple probability model\n• Logistic Regression: Linear coefficients per class\n• Rule-based: Explicit human-readable rules\n• LDA: Projects to discriminative directions',
-      when: 'Use when stakeholders need to understand why predictions were made',
-      pros: 'Easy to explain, fast inference, debuggable',
-      cons: 'May sacrifice accuracy for interpretability',
-      details: 'Trees split on feature thresholds. One-vs-rest trains binary classifier per class. RIPPER learns decision rules. LDA finds linear combinations that separate classes.'
-    },
-
-    performanceMulti: {
-      name: 'High-Performance Multi-class Classification',
-      algorithms: ['XGBoost', 'LightGBM', 'CatBoost', 'Neural Networks', 'Support Vector Machines (one-vs-one)', 'Stacking Ensembles'],
-      why: 'You prioritize maximum performance:\n\n• Gradient Boosting: Highest accuracy on tabular data\n• Neural Networks: Can learn complex patterns\n• SVM: Effective in high dimensions\n• Stacking: Combines multiple models for best results\n• These win competitions and production benchmarks',
-      when: 'Use when accuracy is paramount and you have computational resources',
-      pros: 'State-of-the-art accuracy, handles complex patterns',
-      cons: 'Less interpretable, requires tuning, computationally expensive',
-      details: 'Boosting builds sequential correcting trees. Neural nets use multiple layers. One-vs-one trains C(C-1)/2 binary classifiers. Stacking uses meta-learner on base predictions.'
-    },
-
-    fastMulti: {
-      name: 'Fast Multi-class Classification',
-      algorithms: ['Naive Bayes', 'Linear SVM', 'Logistic Regression', 'Linear Discriminant Analysis', 'Stochastic Gradient Descent'],
-      why: 'You need fast training and prediction:\n\n• Naive Bayes: O(nd) training, instant prediction\n• Linear models: Fast matrix operations\n• SGD: Processes one sample at a time\n• No complex tree building or kernel computations\n• Suitable for real-time systems',
-      when: 'Use for real-time prediction, large-scale systems, or resource-constrained environments',
-      pros: 'Very fast, low memory, scales to large data',
-      cons: 'Cannot model complex non-linear patterns',
-      details: 'Naive Bayes multiplies probabilities. Linear models use matrix multiplication. SGD updates weights incrementally. LDA solves generalized eigenvalue problem.'
-    },
-
-    probabilisticMulti: {
-      name: 'Probabilistic Multi-class Classification',
-      algorithms: ['Naive Bayes', 'Logistic Regression (softmax)', 'Neural Networks (softmax output)', 'Gaussian Process Classification', 'Calibrated classifiers (Platt scaling, Isotonic)'],
-      why: 'You need well-calibrated probability estimates:\n\n• Important for decision making under uncertainty\n• Medical diagnosis, risk assessment need probabilities\n• Naive Bayes directly models probabilities\n• Softmax produces probability distributions\n• GP provides uncertainty estimates\n• Calibration methods correct probability estimates',
-      when: 'Use when you need confidence estimates, not just class labels',
-      pros: 'Provides confidence, supports decision theory, can defer uncertain predictions',
-      cons: 'Some classifiers need calibration, GPs are slow',
-      details: 'Softmax exponentiates logits and normalizes. Platt scaling fits logistic regression on classifier outputs. Isotonic regression fits monotonic function.'
-    },
-
-    multilabelAlgo: {
-      name: 'Multi-label Classification',
-      algorithms: ['Binary Relevance', 'Classifier Chains', 'Label Powerset', 'Multi-label k-NN', 'Neural Networks with sigmoid outputs', 'ML-KNN'],
-      why: 'You need to predict multiple labels per sample:\n\n• Binary Relevance: Train separate classifier per label\n• Classifier Chains: Models label dependencies\n• Label Powerset: Treats each label combination as class\n• Neural networks with sigmoid: Predicts each label independently\n• Multi-label KNN: Adapts KNN for multiple labels',
-      when: 'Use for document tagging, image multi-tagging, multi-symptom diagnosis',
-      pros: 'Handles label correlations, predicts multiple labels naturally',
-      cons: 'More complex than single-label, label space can be huge',
-      details: 'Binary Relevance trains C binary classifiers. Classifier Chains passes predictions as features. Neural nets use sigmoid per output. Label Powerset has 2^C classes.'
-    },
-
-    manyClassAlgo: {
-      name: 'Large Number of Classes (>100)',
-      algorithms: ['Hierarchical Softmax', 'Neural Networks with embedding layers', 'One-vs-all SVM', 'Extreme Multi-label classification (XML)', 'Nearest Class Mean', 'Siamese/Triplet Networks'],
-      why: 'You have many classes (>100):\n\n• Hierarchical Softmax: O(log C) instead of O(C)\n• Embeddings: Maps to continuous space\n• One-vs-all: Efficient with sparse data\n• XML methods: Designed for millions of labels\n• Metric learning: Learns similarity metric\n• Reduces computational complexity',
-      when: 'Use for fine-grained classification, entity recognition with large vocabularies',
-      pros: 'Scales to thousands/millions of classes efficiently',
-      cons: 'More complex implementation, may need special libraries',
-      details: 'Hierarchical softmax organizes classes in tree. Embeddings use cosine similarity. Siamese networks learn distance metrics. XML uses tree-based indexing.'
-    },
-
-    kmeans: {
-      name: 'K-Means and Variants',
-      algorithms: ['K-Means', 'K-Means++', 'Mini-batch K-Means', 'K-Medoids (PAM)', 'Fuzzy C-Means'],
-      why: 'You know the number of spherical clusters:\n\n• K-Means: Fast, simple, scales well\n• K-Means++: Better initialization than random\n• Mini-batch: Faster for large data\n• K-Medoids: Robust to outliers, uses actual points as centers\n• Fuzzy C-Means: Soft clustering, points belong to multiple clusters\n• All assume spherical, convex clusters',
-      when: 'Use for customer segmentation, image compression, preprocessing',
-      pros: 'Very fast, simple to implement, scales well, widely used',
-      cons: 'Need to specify K, assumes spherical clusters, sensitive to initialization and outliers',
-      details: 'Alternates between assigning points to nearest center and updating centers. K-Means++ picks initial centers with probability proportional to distance. Mini-batch uses random samples.'
-    },
-
-    dbscan: {
-      name: 'Density-Based Clustering',
-      algorithms: ['DBSCAN', 'OPTICS', 'HDBSCAN', 'Mean Shift', 'DENCLUE'],
-      why: 'You have arbitrary shapes or unknown number of clusters:\n\n• DBSCAN: Finds clusters of varying shapes, detects outliers\n• OPTICS: Like DBSCAN but for varying densities\n• HDBSCAN: Hierarchical version, automatic parameter selection\n• Mean Shift: Finds modes of density, no K needed\n• Can discover non-convex clusters\n• Noise/outlier detection included',
-      when: 'Use when clusters have arbitrary shapes or you don\'t know K',
-      pros: 'No need to specify K, finds arbitrary shapes, robust to outliers',
-      cons: 'Slower than K-Means, sensitive to parameters (eps, min_samples), struggles with varying densities',
-      details: 'DBSCAN groups points with many neighbors within epsilon distance. OPTICS builds reachability plot. HDBSCAN builds cluster hierarchy. Mean Shift iteratively shifts points toward density modes.'
-    },
-
-    hierarchical: {
-      name: 'Hierarchical Clustering',
-      algorithms: ['Agglomerative Clustering (bottom-up)', 'Divisive Clustering (top-down)', 'BIRCH (Balanced Iterative Reducing)', 'Linkage methods (Single, Complete, Average, Ward)'],
-      why: 'You need hierarchical structure or dendrogram:\n\n• Produces tree of clusters (dendrogram)\n• Can cut at any level for different K\n• Shows relationships between clusters\n• Ward linkage minimizes within-cluster variance\n• BIRCH efficient for large datasets\n• No need to specify K upfront',
-      when: 'Use for taxonomy creation, when cluster hierarchy matters',
-      pros: 'Produces dendrogram, no need to specify K, deterministic',
-      cons: 'O(n²) or O(n³) time complexity, cannot undo merges/splits, sensitive to noise',
-      details: 'Agglomerative starts with each point as cluster, merges closest pairs. Divisive starts with one cluster, recursively splits. Ward minimizes variance increase. BIRCH uses tree structure.'
-    },
-
-    gmm: {
-      name: 'Gaussian Mixture Models',
-      algorithms: ['Gaussian Mixture Models (GMM)', 'Bayesian Gaussian Mixture', 'Variational Inference for GMM'],
-      why: 'You need probabilistic/soft clustering:\n\n• Models data as mixture of Gaussians\n• Each point has probability of belonging to each cluster\n• Can capture elliptical clusters\n• Provides uncertainty estimates\n• Can model overlapping clusters\n• Bayesian version automatically determines K',
-      when: 'Use when clusters overlap or you need probability estimates',
-      pros: 'Soft clustering, probabilistic, can model covariance, flexible cluster shapes',
-      cons: 'Assumes Gaussian distributions, sensitive to initialization, can overfit',
-      details: 'Uses Expectation-Maximization (EM) algorithm. E-step computes probabilities. M-step updates parameters. Bayesian version uses Dirichlet process prior.'
-    },
-
-    largeClustering: {
-      name: 'Large-Scale Clustering',
-      algorithms: ['Mini-batch K-Means', 'BIRCH', 'CLARA', 'Streaming clustering (StreamKM++)', 'Approximate methods'],
-      why: 'You have very large datasets (millions of points):\n\n• Mini-batch K-Means: Uses random batches, much faster\n• BIRCH: Builds tree structure, single pass\n• CLARA: Samples and clusters subsets\n• Streaming: Processes data in one pass\n• Trade accuracy for speed and memory',
-      when: 'Use when data is too large for regular clustering',
-      pros: 'Scales to millions of points, memory efficient, fast',
-      cons: 'May sacrifice some accuracy, approximate results',
-      details: 'Mini-batch uses random samples each iteration. BIRCH uses CF-tree. CLARA samples multiple times and picks best. Streaming maintains summary statistics.'
-    },
-
-    pca: {
-      name: 'Principal Component Analysis (PCA)',
-      algorithms: ['PCA', 'Incremental PCA', 'Kernel PCA', 'Sparse PCA', 'Robust PCA'],
-      why: 'You want linear dimensionality reduction:\n\n• Finds directions of maximum variance\n• Orthogonal components\n• Fast and efficient\n• Incremental PCA for large data\n• Kernel PCA for non-linear manifolds\n• Sparse PCA for interpretable components\n• Reduces noise and computational cost',
-      when: 'Use for preprocessing, visualization, noise reduction',
-      pros: 'Fast, interpretable, preserves variance, widely used',
-      cons: 'Linear only, assumes Gaussian data, components may not be interpretable',
-      details: 'Computes eigenvectors of covariance matrix. Projects data onto top k eigenvectors. Kernel PCA uses kernel trick. Incremental updates for streaming data.'
-    },
-
-    visualization: {
-      name: 'Visualization (2D/3D)',
-      algorithms: ['t-SNE', 'UMAP', 'PaCMAP', 'TriMAP', 'LargeVis', 'Isomap', 'Locally Linear Embedding (LLE)'],
-      why: 'You want to visualize high-dimensional data:\n\n• t-SNE: Preserves local structure, reveals clusters\n• UMAP: Faster than t-SNE, preserves global structure better\n• PaCMAP: Balances local and global structure\n• All reduce to 2-3 dimensions for plotting\n• Reveals hidden patterns and clusters\n• Great for exploratory analysis',
-      when: 'Use to understand data structure, present to stakeholders',
-      pros: 'Beautiful visualizations, reveals clusters, intuitive',
-      cons: 'Slow for large data, stochastic (different runs differ), cannot transform new points (t-SNE)',
-      details: 't-SNE minimizes KL divergence between high-dim and low-dim probabilities. UMAP builds fuzzy topological representation. PaCMAP balances local/mid-range/global distances.'
-    },
-
-    lda: {
-      name: 'Linear Discriminant Analysis',
-      algorithms: ['Linear Discriminant Analysis (LDA)', 'Quadratic Discriminant Analysis', 'Regularized Discriminant Analysis'],
-      why: 'You want supervised dimensionality reduction:\n\n• Uses class labels to find discriminative directions\n• Maximizes between-class variance\n• Minimizes within-class variance\n• Both classifier and dimensionality reduction\n• Can reduce to C-1 dimensions (C classes)\n• Often used before other classifiers',
-      when: 'Use when you have labels and want discriminative features',
-      pros: 'Supervised, finds discriminative directions, can classify',
-      cons: 'Assumes Gaussian classes, linear boundaries, needs labels',
-      details: 'Solves generalized eigenvalue problem with between and within-class scatter matrices. QDA allows different covariances per class. RDA adds regularization.'
-    },
-
-    sparseMethod: {
-      name: 'Sparse/Feature Selection Methods',
-      algorithms: ['L1-regularized methods (Lasso)', 'Elastic Net', 'Recursive Feature Elimination', 'Mutual Information', 'Chi-squared test', 'Feature importance from trees', 'SHAP values'],
-      why: 'You have high-dimensional sparse data:\n\n• L1 regularization zeros out features\n• Removes irrelevant/redundant features\n• Improves interpretability\n• Reduces overfitting\n• Faster training and prediction\n• Lower memory usage',
-      when: 'Use with high-dimensional data, when you need interpretability',
-      pros: 'Reduces dimensions, improves interpretability, faster, prevents overfitting',
-      cons: 'May remove useful features, requires tuning',
-      details: 'Lasso adds L1 penalty that shrinks coefficients to zero. RFE recursively removes features. Mutual Information measures dependence. SHAP uses game theory.'
-    },
-
-    manifold: {
-      name: 'Manifold Learning',
-      algorithms: ['Isomap', 'Locally Linear Embedding (LLE)', 'Laplacian Eigenmaps', 'Autoencoders', 'Variational Autoencoders (VAE)'],
-      why: 'You have non-linear manifolds:\n\n• Data lies on curved lower-dimensional manifold\n• Isomap preserves geodesic distances\n• LLE preserves local neighborhoods\n• Autoencoders learn non-linear encoding\n• VAE adds probabilistic structure\n• Captures intrinsic dimensionality',
-      when: 'Use when linear methods fail, data has curved structure',
-      pros: 'Handles non-linear manifolds, finds intrinsic dimensions',
-      cons: 'Slow, sensitive to parameters, may not generalize to new points',
-      details: 'Isomap uses shortest paths on nearest neighbor graph. LLE reconstructs each point from neighbors. Autoencoders use neural networks for encoding/decoding.'
-    },
-
-    textSeqClass: {
-      name: 'Text Sequence Classification',
-      algorithms: ['RNNs/LSTMs', 'GRUs', 'Bidirectional LSTMs', 'Transformers (BERT, RoBERTa)', 'GPT fine-tuned', 'DistilBERT', 'ELECTRA', 'DeBERTa'],
-      why: 'You need to classify text sequences:\n\n• LSTMs/GRUs: Handle sequential dependencies\n• Bidirectional: See context from both directions\n• BERT: Pre-trained on massive text, understands context\n• GPT: Autoregressive, can do few-shot\n• DistilBERT: Faster, smaller BERT\n• State-of-the-art on most NLP tasks',
-      when: 'Use for sentiment analysis, intent classification, question answering',
-      pros: 'Understands context, handles variable length, state-of-the-art accuracy',
-      cons: 'Requires GPUs, slow inference, large models',
-      details: 'LSTM uses gates to control information flow. BERT uses bidirectional transformers with masked language modeling pre-training. GPT uses causal attention.'
-    },
-
-    textGeneration: {
-      name: 'Text Generation',
-      algorithms: ['GPT-2/3/4', 'LLaMA', 'Transformer-XL', 'XLNet', 'T5', 'BART', 'PaLM', 'Claude'],
-      why: 'You want to generate text:\n\n• GPT: Autoregressive generation, coherent long text\n• LLaMA: Open source alternative\n• T5: Text-to-text framework\n• BART: Encoder-decoder for generation\n• These are large language models (LLMs)\n• Can do few-shot and zero-shot tasks',
-      when: 'Use for content creation, dialogue, summarization',
-      pros: 'Coherent text, creative, can follow instructions',
-      cons: 'Very large, expensive to run, can hallucinate',
-      details: 'GPT uses transformer decoder with causal attention. Trained to predict next token. T5 frames everything as text-to-text. BART denoises corrupted text.'
-    },
-
-    translation: {
-      name: 'Machine Translation',
-      algorithms: ['Transformer (attention is all you need)', 'Seq2Seq with attention', 'mBERT', 'mT5', 'M2M-100', 'NLLB'],
-      why: 'You need to translate between languages:\n\n• Transformer: Revolutionized translation with attention\n• Seq2Seq: Encoder-decoder architecture\n• Multilingual models: Support many language pairs\n• M2M: Direct translation without English pivot\n• NLLB: Supports 200+ languages',
-      when: 'Use for translating text between languages',
-      pros: 'High quality, supports many languages, can handle rare words',
-      cons: 'Requires parallel corpora, large models, domain-specific',
-      details: 'Transformer uses encoder-decoder with multi-head self-attention and cross-attention. Trained on parallel sentences. Uses beam search for decoding.'
-    },
-
-    timeSeriesForecast: {
-      name: 'Time Series Forecasting (Sequence)',
-      algorithms: ['LSTM/GRU', 'Temporal Convolutional Networks', 'Transformers (Temporal Fusion Transformer)', 'N-BEATS', 'DeepAR', 'Prophet', 'WaveNet'],
-      why: 'You need to forecast future values:\n\n• LSTM: Learns long-term dependencies\n• TCN: Uses dilated convolutions, parallelizable\n• Transformers: Attention over time\n• N-BEATS: Interpretable deep learning\n• DeepAR: Probabilistic, works across many series\n• WaveNet: Originally for audio, works for time series',
-      when: 'Use for demand forecasting, stock prediction, weather',
-      pros: 'Handles complex patterns, multi-step forecasting, probabilistic',
-      cons: 'Needs lots of data, computationally expensive, black box',
-      details: 'LSTM processes sequence step-by-step. TCN uses causal convolutions. Transformers use positional encoding. DeepAR models conditional distribution.'
-    },
-
-    speechRecog: {
-      name: 'Speech Recognition',
-      algorithms: ['Wav2Vec 2.0', 'Whisper', 'DeepSpeech', 'Listen, Attend and Spell (LAS)', 'Conformer', 'Streaming models'],
-      why: 'You need to convert speech to text:\n\n• Wav2Vec: Self-supervised pre-training on raw audio\n• Whisper: Robust, multilingual, from OpenAI\n• Conformer: Combines convolution and attention\n• LAS: Attention-based encoder-decoder\n• Can handle various accents and noise',
-      when: 'Use for transcription, voice commands, accessibility',
-      pros: 'High accuracy, handles accents, end-to-end',
-      cons: 'Requires lots of audio data, computationally expensive',
-      details: 'Wav2Vec uses contrastive learning on masked audio. Whisper trained on 680K hours. Conformer uses convolution for local context, attention for global.'
-    },
-
-    semiSupervisedAlgo: {
-      name: 'Semi-Supervised Learning',
-      algorithms: ['Self-training', 'Co-training', 'Label Propagation', 'Pseudo-labeling', 'MixMatch', 'FixMatch', 'Meta Pseudo Labels', 'Ladder Networks'],
-      why: 'You have mostly unlabeled data:\n\n• Self-training: Train on labeled, predict unlabeled, retrain\n• Label Propagation: Spreads labels through graph\n• MixMatch: Combines consistency regularization and pseudo-labeling\n• FixMatch: Uses weak and strong augmentation\n• Leverages structure in unlabeled data\n• Reduces labeling cost',
-      when: 'Use when labeling is expensive but unlabeled data is abundant',
-      pros: 'Uses unlabeled data, improves with more data, reduces labeling cost',
-      cons: 'Can propagate errors, sensitive to initial labeled set',
-      details: 'Self-training iteratively adds confident predictions. Label Propagation builds k-NN graph. MixMatch does consistency regularization with mixup.'
-    },
-
-    supervisedAnomaly: {
-      name: 'Supervised Anomaly Detection',
-      algorithms: ['Classification algorithms with class imbalance techniques', 'One-Class SVM', 'SVDD (Support Vector Data Description)', 'Isolation Forest (semi-supervised)', 'Autoencoders trained on normal data'],
-      why: 'You have labeled anomalies:\n\n• Treat as imbalanced classification\n• One-Class SVM: Learns boundary around normal\n• Isolation Forest: Isolates anomalies with fewer splits\n• Autoencoders: High reconstruction error on anomalies\n• Use techniques like SMOTE, class weights',
-      when: 'Use for fraud detection, defect detection with labeled examples',
-      pros: 'Can learn specific anomaly types, higher accuracy',
-      cons: 'Requires anomaly labels, may not generalize to new anomaly types',
-      details: 'One-Class SVM finds minimum enclosing hypersphere. Isolation Forest uses random trees. Autoencoders learn to reconstruct, fail on anomalies.'
-    },
-
-    unsupervisedAnomaly: {
-      name: 'Unsupervised Anomaly Detection',
-      algorithms: ['Isolation Forest', 'Local Outlier Factor (LOF)', 'One-Class SVM', 'Autoencoders', 'DBSCAN', 'Gaussian Mixture Models', 'Robust Covariance'],
-      why: 'You have no labeled anomalies:\n\n• Isolation Forest: Fast, works well in practice\n• LOF: Based on local density\n• One-Class SVM: Learns normal data boundary\n• Autoencoders: Reconstruction error\n• Assumes anomalies are rare and different\n• No labels needed',
-      when: 'Use when you cannot label anomalies or they are unknown',
-      pros: 'No labels needed, can find novel anomalies',
-      cons: 'May have false positives, hard to evaluate without labels',
-      details: 'Isolation Forest randomly partitions, anomalies isolated quickly. LOF compares density to neighbors. Autoencoders fail to reconstruct unusual patterns.'
-    },
-
-    onlineAnomaly: {
-      name: 'Online/Streaming Anomaly Detection',
-      algorithms: ['Online learning algorithms', 'Exponentially Weighted Moving Average (EWMA)', 'Streaming quantiles', 'Incremental PCA', 'Online clustering updates', 'ARIMA residuals', 'Streaming isolation forest'],
-      why: 'You have real-time streaming data:\n\n• Must process data in one pass\n• Update model incrementally\n• EWMA: Simple, tracks moving statistics\n• Streaming quantiles: Detect distribution changes\n• Immediate detection required\n• Memory constraints',
-      when: 'Use for real-time monitoring, IoT sensors, network traffic',
-      pros: 'Real-time, memory efficient, adapts to drift',
-      cons: 'May miss complex patterns, sensitive to parameters',
-      details: 'EWMA updates statistics with decay. Streaming quantiles use online algorithms. Incremental PCA updates singular vectors. Compare new points to learned distribution.'
-    },
-
-    associationAlgo: {
-      name: 'Association Rule Mining',
-      algorithms: ['Apriori', 'FP-Growth', 'ECLAT', 'Frequent Pattern Mining'],
-      why: 'You want to find frequently co-occurring items:\n\n• Apriori: Classic algorithm, uses candidate generation\n• FP-Growth: Faster, uses tree structure\n• ECLAT: Depth-first search\n• Finds rules like "if A and B then C"\n• Market basket analysis\n• Measures support, confidence, lift',
-      when: 'Use for market basket analysis, recommendation systems',
-      pros: 'Finds interpretable rules, handles large itemsets',
-      cons: 'Exponential search space, many redundant rules, discrete data only',
-      details: 'Apriori generates candidates level-wise. FP-Growth builds frequent pattern tree. ECLAT uses vertical data format. Filter by minimum support and confidence.'
-    },
-
-    densityAlgo: {
-      name: 'Density Estimation',
-      algorithms: ['Kernel Density Estimation (KDE)', 'Gaussian Mixture Models', 'Histograms', 'Variational Autoencoders', 'Normalizing Flows', 'Energy-Based Models'],
-      why: 'You want to estimate probability density:\n\n• KDE: Non-parametric, smooth estimates\n• GMM: Parametric mixture model\n• VAE: Deep generative model\n• Normalizing Flows: Exact likelihood\n• Useful for sampling, anomaly detection\n• Understanding data distribution',
-      when: 'Use when you need probability estimates, sampling, or generation',
-      pros: 'Models full distribution, can sample, detects outliers',
-      cons: 'Curse of dimensionality, requires careful tuning',
-      details: 'KDE sums kernels around points. GMM fits mixture of Gaussians. VAE learns latent distribution. Normalizing Flows use invertible transformations.'
-    },
-
-    generativeType: {
-      name: 'Generative Models',
-      algorithms: ['Generative Adversarial Networks (GANs)', 'Variational Autoencoders (VAE)', 'Diffusion Models', 'Normalizing Flows', 'PixelCNN', 'Vector Quantized VAE (VQ-VAE)', 'StyleGAN', 'Stable Diffusion'],
-      why: 'You want to generate new samples:\n\n• GANs: High quality images, adversarial training\n• VAE: Probabilistic, smooth latent space\n• Diffusion: State-of-the-art image generation\n• Normalizing Flows: Exact likelihood\n• Generate realistic images, text, audio\n• Data augmentation, creative applications',
-      when: 'Use for data augmentation, creative content, synthetic data',
-      pros: 'Generate realistic samples, learn data distribution, creative applications',
-      cons: 'Hard to train (GANs), computationally expensive, can memorize training data',
-      details: 'GANs train generator and discriminator adversarially. VAE uses variational inference. Diffusion gradually adds then removes noise. Flows use invertible networks.'
-    },
-
-    rankingAlgo: {
-      name: 'Learning to Rank',
-      algorithms: ['LambdaMART', 'RankNet', 'ListNet', 'XGBoost for ranking', 'Neural ranking models', 'BERT for ranking'],
-      why: 'You need to rank items:\n\n• LambdaMART: Gradient boosting for ranking\n• RankNet: Neural network with pairwise loss\n• ListNet: Learns to rank entire lists\n• Used in search engines\n• Optimizes ranking metrics (NDCG, MAP)\n• Can incorporate multiple features',
-      when: 'Use for search engines, recommendation ranking, ad placement',
-      pros: 'Optimizes ranking metrics directly, handles position bias',
-      cons: 'Requires relevance labels, complex training',
-      details: 'LambdaMART uses gradients on ranking metrics. RankNet uses pairwise preferences. ListNet uses probability distributions over permutations.'
-    },
-
-    recommendationType: {
-      name: 'Recommendation Systems',
-      algorithms: ['Collaborative Filtering (User-based, Item-based)', 'Matrix Factorization (SVD, NMF)', 'Deep Learning (Neural Collaborative Filtering)', 'Content-based filtering', 'Hybrid methods', 'Factorization Machines', 'Two-tower models', 'Graph-based (Node2Vec)'],
-      why: 'You want to recommend items to users:\n\n• Collaborative Filtering: Uses user-item interactions\n• Matrix Factorization: Learns latent factors\n• Deep Learning: Learns complex patterns\n• Content-based: Uses item features\n• Hybrid: Combines multiple approaches\n• Cold start solutions for new users/items',
-      when: 'Use for product recommendations, content recommendations',
-      pros: 'Personalized, improves engagement, learns preferences',
-      cons: 'Cold start problem, sparsity, scalability challenges',
-      details: 'CF finds similar users/items. MF decomposes user-item matrix. NCF uses neural networks. Two-tower separately encodes users and items.'
-    }
   };
 
   const currentQuestion = questions.find(q => q.id === (step === 0 ? 'dataLabels' : answers[questions[step - 1]?.id]?.next || 'dataLabels'));
@@ -628,7 +282,7 @@ const MLAlgorithmSelector = () => {
   const handleReset = () => {
     setAnswers({});
     setStep(0);
-    setShowExplanation(false);
+    setShowDetailPage(null);
   };
 
   if (result) {
@@ -654,7 +308,7 @@ const MLAlgorithmSelector = () => {
               <div className="flex flex-wrap gap-2 mt-3">
                 {result.algorithms.map((algo, idx) => {
                   const algoKey = algo.toLowerCase().replace(/[^a-z0-9]/g, '');
-                  const hasDetailPage = ['elasticnet', 'bayesianlinearregression', 'robustregression', 'huberregression', 'ransac', 'theilsenestimator', 'lassoregressionl1', 'lasso', 'ridgeregressionl2', 'ridge'].includes(algoKey);
+                  const hasDetailPage = ['elasticnet', 'bayesianlinearregression', 'robustregression', 'huberregression', 'ransac', 'theilsenestimator', 'lassoregressionl1', 'lasso', 'ridgeregressionl2', 'ridge', 'ordinaryleastsquaresols', 'ols', 'linearregression'].includes(algoKey);
                   
                   return (
                     <button
